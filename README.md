@@ -12,4 +12,4 @@
   
 - `activate tadpole`
 - `conda install -n tadpole -y jupyterlab pandas scikit-learn numpy matplotlib ipywidgets widgetsnbextension`
-- `jupyter lab`
+- `conda env export -n tadpole --no-builds > environment.yml`

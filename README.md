@@ -1,11 +1,13 @@
 # jupyter
 
 ## Setup
-- miniconda3
+- use [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
+- make sure miniconda bin path is in $PATH
 - conda env create -f environment.yml
+- conda activate tadpole
+- jupyter lab
 
 ## Creating conda environment
-- use [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
 - make sure miniconda bin path is in $PATH
 - create virtual env:
   `conda create -n tadpole python=3`

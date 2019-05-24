@@ -1,6 +1,7 @@
 name: tadpole
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - attrs=19.1.0
   - backcall=0.1.0
@@ -22,6 +23,7 @@ dependencies:
   - gstreamer=1.14.0
   - icu=58.2
   - intel-openmp=2019.3
+  - ipdb=0.12
   - ipykernel=5.1.0
   - ipython=7.5.0
   - ipython_genutils=0.2.0

@@ -101,5 +101,4 @@ dependencies:
   - xz=5.2.4
   - zeromq=4.3.1
   - zlib=1.2.11
-prefix: /home/tom/miniconda3/envs/tadpole
 

@@ -5,6 +5,7 @@
 - make sure miniconda bin path is in $PATH
 - conda env create -f environment.yml
 - conda activate tadpole
+- python setup.py develop
 - jupyter lab
 
 ## Creating conda environment.yml

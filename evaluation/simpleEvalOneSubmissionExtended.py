@@ -9,28 +9,6 @@ from sklearn.metrics import confusion_matrix
 
 from tadpole.metrics import mean_abs_error, weighted_error_score, cov_prob_acc
 
-parser = argparse.ArgumentParser(usage='python evalOneSubmission.py',
-  description=r'''
-  TADPOLE Evaluation Script:
-  The program computes the following matrics:
-
-  Clinical diagnosis prediction:
-
-  1. Multiclass area under the receiver operating curve (mAUC)
-  2. Balanced classification accuracy (BCA)
-
-  Continuous feature predictions:
-  3. Mean Absolute Error (MAE)
-  4. Coverage Probability Accuracy (CPA)
-  5. Weighted Error Score (WES)
-
-  Author: Razvan V. Marinescu, razvan.marinescu.14@ucl.ac.uk
-
-  Changes by Esther Bron:
-  - Compute and print confidence interval
-  - Python 2 bugfix in coverage probability computation (float vs int)
-
-  ''')
 
 def calcBCA(estimLabels, trueLabels, nrClasses):
 
@@ -82,7 +60,6 @@ def parseData(d4Df, forecastDf, diagLabels):
   ventriclesEstimUp = -1 * np.ones(nrSubj, float)  # upper margin
 
   # print('subDf.keys()', forecastDf['Forecast Date'])
-  invalidResultReturn = (None,None,None,None,None,None,None,None,None,None,None)
   invalidFlag = False
   # for each subject in D4 match the closest user forecasts
   for s in range(nrSubj):
@@ -167,7 +144,6 @@ def parseData(d4Df, forecastDf, diagLabels):
 
   return zipTrueLabelAndProbs, hardEstimClassFilt, adasEstim, adasEstimLo, adasEstimUp, \
     ventriclesEstim, ventriclesEstimLo, ventriclesEstimUp, trueDiagFilt, trueADASFilt, trueVentsFilt
-
 
 
 def evalOneSub(d4Df, forecastDf):

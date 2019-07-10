@@ -6,6 +6,9 @@ from evaluation import MAUC
 import argparse
 from sklearn.metrics import confusion_matrix
 
+from tadpole.transformations import convert_to_year_month, \
+  convert_to_year_month_day, map_string_diagnosis
+
 parser = argparse.ArgumentParser(usage='python evalOneSubmission.py',
   description=r'''
   TADPOLE Evaluation Script:
@@ -67,7 +70,7 @@ def parseData(d4Df, forecastDf, diagLabels):
   trueVents = d4Df['Ventricles']
 
   nrSubj = d4Df.shape[0]
-  
+
   zipTrueLabelAndProbs = []
 
   hardEstimClass = -1 * np.ones(nrSubj, int)
@@ -187,12 +190,10 @@ def evalOneSub(d4Df, forecastDf):
 
   """
 
-  forecastDf['Forecast Date'] = [datetime.strptime(x, '%Y-%m') for x in forecastDf['Forecast Date']] # considers every month estimate to be the actual first day 2017-01
-  if isinstance(d4Df['Diagnosis'].iloc[0], str):
-    d4Df['CognitiveAssessmentDate'] = [datetime.strptime(x, '%Y-%m-%d') for x in d4Df['CognitiveAssessmentDate']]
-    d4Df['ScanDate'] = [datetime.strptime(x, '%Y-%m-%d') for x in d4Df['ScanDate']]
-    mapping = {'CN' : 0, 'MCI' : 1, 'AD' : 2}
-    d4Df.replace({'Diagnosis':mapping}, inplace=True)
+  forecastDf['Forecast Date'] = convert_to_year_month(forecastDf['Forecast Date']) # considers every month estimate to be the actual first day 2017-01
+  d4Df['CognitiveAssessmentDate'] = convert_to_year_month_day(d4Df['CognitiveAssessmentDate'])
+  d4Df['ScanDate'] = convert_to_year_month_day(d4Df['ScanDate'])
+  d4Df['Diagnosis'] = map_string_diagnosis(d4Df['Diagnosis'])
 
   diagLabels = ['CN', 'MCI', 'AD']
 
@@ -238,11 +239,11 @@ def evalOneSub(d4Df, forecastDf):
   #### Coverage Probability Accuracy (CPA) ####
 
   adasCovProb = ( np.sum((adasEstimLo < trueADASFilt) &
-                       (adasEstimUp > trueADASFilt)) * 1. )/trueADASFilt.shape[0] 
+                       (adasEstimUp > trueADASFilt)) * 1. )/trueADASFilt.shape[0]
   adasCPA = np.abs(adasCovProb - 0.5)
 
   ventsCovProb = (np.sum((ventriclesEstimLo < trueVentsFilt) &
-                        (ventriclesEstimUp > trueVentsFilt)) * 1. )/trueVentsFilt.shape[0] 
+                        (ventriclesEstimUp > trueVentsFilt)) * 1. )/trueVentsFilt.shape[0]
   ventsCPA = np.abs(ventsCovProb - 0.5)
 
   return mAUC, bca, adasMAE, ventsMAE, adasWES, ventsWES, adasCPA, ventsCPA, adasEstim, trueADASFilt

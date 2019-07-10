@@ -7,6 +7,8 @@ from evaluation import MAUC
 import argparse
 from sklearn.metrics import confusion_matrix
 
+from tadpole.metrics import mean_abs_error, weighted_error_score, cov_prob_acc
+
 parser = argparse.ArgumentParser(usage='python evalOneSubmission.py',
   description=r'''
   TADPOLE Evaluation Script:
@@ -217,6 +219,7 @@ def evalOneSub(d4Df, forecastDf):
 
 
   ## Confusion matrix ## Added by Esther Bron
+  # ? conf is not used, so this can be deleted?
   conf = confusion_matrix(hardEstimClass, trueDiagFilt.values, [0, 1, 2])
   conf = np.transpose(conf) # Transposed to match confusion matrix on web site
 
@@ -225,25 +228,17 @@ def evalOneSub(d4Df, forecastDf):
   ####### compute metrics for Ventricles and ADAS13 ##########
 
   #### Mean Absolute Error (MAE) #####
-
-  adasMAE = np.mean(np.abs(adasEstim - trueADASFilt))
-  ventsMAE = np.mean(np.abs(ventriclesEstim - trueVentsFilt))
+  adasMAE = mean_abs_error(adasEstim, trueADASFilt)
+  ventsMAE = mean_abs_error(ventriclesEstim, trueVentsFilt)
 
   ##### Weighted Error Score (WES) ####
-  adasCoeffs = 1/(adasEstimUp - adasEstimLo)
-  adasWES = np.sum(adasCoeffs * np.abs(adasEstim - trueADASFilt))/np.sum(adasCoeffs)
-
-  ventsCoeffs = 1/(ventriclesEstimUp - ventriclesEstimLo)
-  ventsWES = np.sum(ventsCoeffs * np.abs(ventriclesEstim - trueVentsFilt))/np.sum(ventsCoeffs)
+  adasWES = weighted_error_score(adasEstim, adasEstimUp, adasEstimLo,
+                                 trueADASFilt)
+  ventsWES = weighted_error_score(ventriclesEstim, ventriclesEstimUp,
+                                  ventriclesEstimLo, trueVentsFilt)
 
   #### Coverage Probability Accuracy (CPA) ####
-
-  adasCovProb = ( np.sum((adasEstimLo < trueADASFilt) &
-                       (adasEstimUp > trueADASFilt)) * 1. )/trueADASFilt.shape[0]
-  adasCPA = np.abs(adasCovProb - 0.5)
-
-  ventsCovProb = (np.sum((ventriclesEstimLo < trueVentsFilt) &
-                        (ventriclesEstimUp > trueVentsFilt)) * 1. )/trueVentsFilt.shape[0]
-  ventsCPA = np.abs(ventsCovProb - 0.5)
+  adasCPA = cov_prob_acc(adasEstimUp, adasEstimLo, trueADASFilt)
+  ventsCPA = cov_prob_acc(ventriclesEstimUp, ventriclesEstimLo, trueADASFilt)
 
   return mAUC, bca, adasMAE, ventsMAE, adasWES, ventsWES, adasCPA, ventsCPA, adasEstim, trueADASFilt

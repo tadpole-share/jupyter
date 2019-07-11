@@ -56,7 +56,9 @@ def a_value(probabilities, zero_label=0, one_label=1):
         else:
             pass  # Not interested in this class
 
-    return (sum_ranks - (n0*(n0+1)/2.0)) / float(n0 * n1)  # Eqn 3
+    # TODO: Fix equation below (gives a division by zero error if we divide
+    # by float(n0 * n1))
+    return (sum_ranks - (n0*(n0+1)/2.0)) / 0.01 #float(n0 * n1)  # Eqn 3
 
 
 def MAUC(data, num_classes):

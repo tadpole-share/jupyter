@@ -82,8 +82,28 @@ class SimpleSVM:
             predict_df_preprocessed['Ventricles_ICV'].dropna().iloc[-1]
         ]
 
-        return {
+        # TODO: The evaluation code expects as input a list of 5*12 (5 years of
+        # monthly) predictions. How to incorporate this into our code?
+        # TODO: Find out how to add:
+        #   - CN relative probability
+        #   - MCI relative probability
+        #   - AD relative probability
+        #   - ADAS13 50% CI lower
+        #   - ADAS13 50% CI upper
+        #   - Ventricles_ICV 50% CI lower
+        #   - Ventricles_ICV 50% CI upper
+        # (These are derived from other values? We are using constants for now.)
+        return [{
             'Diagnosis': self.diagnosis_model.predict([final_row])[0],
             'ADAS13': self.adas_model.predict([final_row])[0],
-            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0]
-        }
+            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0],
+            'Forecast Date': datetime.strftime('%Y-%m'),
+            'RID': predict_df['RID'].dropna().iloc[-1],
+            'CN relative probability': 0.33,
+            'MCI relative probability': 0.33,
+            'AD relative probability': 0.33,
+            'ADAS13 50% CI lower': 50.0,
+            'ADAS13 50% CI upper': 150.0,
+            'Ventricles_ICV 50% CI lower': 50.0,
+            'Ventricles_ICV 50% CI upper': 150.0
+        } for i in range(5*12)]

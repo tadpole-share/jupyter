@@ -44,12 +44,20 @@ def calcBCA(estimLabels, trueLabels, nrClasses):
   return np.mean(bcaAll)
 
 def parseData(d4Df, forecastDf, diagLabels):
+  """Data preprocessing.
+
+    Args:
+        d4Df (pandas DataFrame): DataFrame containing the ground truth.
+        forecastDf (pandas DataFrame): DataFrame containing the predictions.
+        diagLabels (list of strings): A list of diagnosis labels.
+  """
 
   trueDiag = d4Df['Diagnosis']
   trueADAS = d4Df['ADAS13']
   trueVents = d4Df['Ventricles']
 
   nrSubj = d4Df.shape[0]
+  print('Number of subjects:', nrSubj)
 
   zipTrueLabelAndProbs = []
 
@@ -62,34 +70,29 @@ def parseData(d4Df, forecastDf, diagLabels):
   ventriclesEstimUp = -1 * np.ones(nrSubj, float)  # upper margin
 
   # print('subDf.keys()', forecastDf['Forecast Date'])
-  invalidFlag = False
+
   # for each subject in D4 match the closest user forecasts
   for s in range(nrSubj):
-    currSubjMask = d4Df['RID'].iloc[s] == forecastDf['RID']
-    currSubjData = forecastDf[currSubjMask]
+    currSubjInpData = d4Df.iloc[s]
+    currSubjPred = forecastDf.query(f'RID == {currSubjInpData["RID"]}')
+    currSubjPred = currSubjPred.reset_index(drop=True)
 
+    msg = None
     # if subject is missing
-    if currSubjData.shape[0] == 0:
-      print('WARNING: Subject RID %s missing from user forecasts' % d4Df['RID'].iloc[s])
-      invalidFlag = True
-      continue
-
+    if currSubjPred.shape[0] == 0:
+      msg = 'Subject RID %s missing from user forecasts' % currSubjInpData['RID']
     # if not all forecast months are present
-    if currSubjData.shape[0] < 5*12: # check if at least 5 years worth of forecasts exist
-      print('WARNING: Missing forecast months for subject with RID %s' % d4Df['RID'].iloc[s])
-      invalidFlag = True
-      continue
+    elif currSubjPred.shape[0] < 5*12: # check if at least 5 years worth of forecasts exist
+      msg = 'Missing forecast months for subject with RID %s' % currSubjInpData['RID']
 
-    currSubjData = currSubjData.reset_index(drop=True)
+    if msg is not None:
+        raise ValueError(msg + '\n\nSubmission was incomplete. Please resubmit')
 
-    timeDiffsScanCog = [d4Df['CognitiveAssessmentDate'].iloc[s] - d for d in currSubjData['Forecast Date']]
-    # print('Forecast Date 2',currSubjData['Forecast Date'])
-    indexMin = np.argsort(np.abs(timeDiffsScanCog))[0]
-    # print('timeDiffsScanMri', indexMin, timeDiffsScanMri)
+    indexMin = (currSubjPred['Forecast Date'] - currSubjInpData['CognitiveAssessmentDate']).idxmin()
 
-    pCN = currSubjData['CN relative probability'].iloc[indexMin]
-    pMCI = currSubjData['MCI relative probability'].iloc[indexMin]
-    pAD = currSubjData['AD relative probability'].iloc[indexMin]
+    pCN = currSubjPred['CN relative probability'].iloc[indexMin]
+    pMCI = currSubjPred['MCI relative probability'].iloc[indexMin]
+    pAD = currSubjPred['AD relative probability'].iloc[indexMin]
 
     # normalise the relative probabilities by their sum
     pSum = (pCN + pMCI + pAD)/3
@@ -99,27 +102,21 @@ def parseData(d4Df, forecastDf, diagLabels):
 
     hardEstimClass[s] = np.argmax([pCN, pMCI, pAD])
 
-    adasEstim[s] = currSubjData['ADAS13'].iloc[indexMin]
-    adasEstimLo[s] = currSubjData['ADAS13 50% CI lower'].iloc[indexMin]
-    adasEstimUp[s] = currSubjData['ADAS13 50% CI upper'].iloc[indexMin]
+    adasEstim[s] = currSubjPred['ADAS13'].iloc[indexMin]
+    adasEstimLo[s] = currSubjPred['ADAS13 50% CI lower'].iloc[indexMin]
+    adasEstimUp[s] = currSubjPred['ADAS13 50% CI upper'].iloc[indexMin]
 
     # for the mri scan find the forecast closest to the scan date,
     # which might be different from the cognitive assessment date
-    timeDiffsScanMri = [d4Df['ScanDate'].iloc[s] - d for d in currSubjData['Forecast Date']]
-    indexMinMri = np.argsort(np.abs(timeDiffsScanMri))[0]
+    indexMinMri = (currSubjPred['Forecast Date'] - currSubjInpData['ScanDate']).idxmin()
 
-    ventriclesEstim[s] = currSubjData['Ventricles_ICV'].iloc[indexMinMri]
-    ventriclesEstimLo[s] = currSubjData['Ventricles_ICV 50% CI lower'].iloc[indexMinMri]
-    ventriclesEstimUp[s] = currSubjData['Ventricles_ICV 50% CI upper'].iloc[indexMinMri]
+    ventriclesEstim[s] = currSubjPred['Ventricles_ICV'].iloc[indexMinMri]
+    ventriclesEstimLo[s] = currSubjPred['Ventricles_ICV 50% CI lower'].iloc[indexMinMri]
+    ventriclesEstimUp[s] = currSubjPred['Ventricles_ICV 50% CI upper'].iloc[indexMinMri]
     # print('%d probs' % d4Df['RID'].iloc[s], pCN, pMCI, pAD)
 
     if not np.isnan(trueDiag.iloc[s]):
-      zipTrueLabelAndProbs += [(trueDiag.iloc[s], [pCN, pMCI, pAD])]
-
-
-  if invalidFlag:
-    # if at least one subject was missing or if
-    raise ValueError('Submission was incomplete. Please resubmit')
+      zipTrueLabelAndProbs.append((trueDiag.iloc[s], [pCN, pMCI, pAD]))
 
   # If there are NaNs in D4, filter out them along with the corresponding user forecasts
   # This can happen if rollover subjects don't come for visit in ADNI3.
@@ -155,7 +152,7 @@ def evalOneSub(d4Df, forecastDf):
   Parameters
   ----------
   d4Df - Pandas data frame containing the D4 dataset
-  subDf - Pandas data frame containing user forecasts for D2 subjects.
+  forecastDf - Pandas data frame containing user forecasts for D2 subjects.
 
   Returns
   -------

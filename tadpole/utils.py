@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 def test_train_split(df, test_fraction=0.1):
     # remove all rows without 'Ventricles"
@@ -27,3 +28,38 @@ def test_train_split(df, test_fraction=0.1):
     return train_df.reset_index(drop=True),\
            test_df.reset_index(drop=True),\
            ground_truth_df.reset_index(drop=True)
+
+
+def ventricles_conf_interv(Ventricles_Col, ICV_Col, margin=1000):
+    # code adapted from: https://github.com/tadpole-share/TADPOLE-eval/blob/c8d4e241bc143b858d9b8237aab92417d3e871e2/evaluation/TADPOLE_SimpleForecastExampleLeaderboard.py#L164
+    # Missing data = typical volume +/- broad interval = 25000 +/- 20000
+
+    Ventricles_ICV_Col = Ventricles_Col/ICV_Col
+
+    # Convert to Ventricles/ICV via linear regression
+    nm = np.all(np.stack([Ventricles_Col>0,ICV_Col>0]),0) # not missing: Ventricles and ICV
+    x = Ventricles_Col[nm]
+    y = Ventricles_ICV_Col[nm]
+    lm = np.polyfit(x,y,1)
+    p = np.poly1d(lm)
+
+    return np.abs(p(margin) - p(-margin))/2
+
+
+def predefined_status_prediction(status):
+    # code adapted from: https://github.com/tadpole-share/TADPOLE-eval/blob/c8d4e241bc143b858d9b8237aab92417d3e871e2/evaluation/TADPOLE_SimpleForecastExampleLeaderboard.py#L235
+    #* Clinical status forecast: predefined likelihoods per current status
+
+    # ? CN or NL?
+    if status == 1:
+        CNp, MCIp, ADp = (0.75, 0.15, 0.1)
+    # MCI
+    elif status == 2:
+        CNp, MCIp, ADp = (0.1, 0.5, 0.4)
+    # ? Dementia or AD?
+    elif status == 3:
+        CNp, MCIp, ADp = (0.1, 0.1, 0.8)
+    else:
+        CNp, MCIp, ADp = (0.33, 0.33, 0.34)
+
+    return CNp, MCIp, ADp

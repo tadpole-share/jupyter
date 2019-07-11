@@ -4,6 +4,8 @@ from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
+from tadpole.utils import ventricles_conf_interv, predefined_status_prediction
+
 
 class SimpleSVM:
     def __init__(self):
@@ -40,7 +42,7 @@ class SimpleSVM:
 
         # Select features
         train_df = train_df[
-            ["RID", "Diagnosis", "ADAS13", "Ventricles_ICV"]
+            ["RID", "Diagnosis", "ADAS13", "Ventricles_ICV", "Ventricles", "ICV_bl"]
         ]
 
         # Force values to numeric
@@ -84,7 +86,7 @@ class SimpleSVM:
 
         # TODO: The evaluation code expects as input a list of 5*12 (5 years of
         # monthly) predictions. How to incorporate this into our code?
-        # TODO: Find out how to add:
+        # TODO: Check whether we use correct derivations of:
         #   - CN relative probability
         #   - MCI relative probability
         #   - AD relative probability
@@ -92,18 +94,26 @@ class SimpleSVM:
         #   - ADAS13 50% CI upper
         #   - Ventricles_ICV 50% CI lower
         #   - Ventricles_ICV 50% CI upper
-        # (These are derived from other values? We are using constants for now.)
+
+        diagnosis = self.diagnosis_model.predict([final_row])[0]
+        adas13 = self.adas_model.predict([final_row])[0]
+        ventricles_icv = self.ventricles_model.predict([final_row])[0]
+
+        conf_v = ventricles_conf_interv(predict_df_preprocessed['Ventricles'],
+                                        predict_df_preprocessed['ICV_bl'])
+        CNp, MCIp, ADp = predefined_status_prediction(diagnosis)
+
         return [{
-            'Diagnosis': self.diagnosis_model.predict([final_row])[0],
-            'ADAS13': self.adas_model.predict([final_row])[0],
-            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0],
+            'Diagnosis': diagnosis,
+            'ADAS13': adas13,
+            'Ventricles_ICV': ventricles_icv,
             'Forecast Date': datetime.strftime('%Y-%m'),
             'RID': predict_df['RID'].dropna().iloc[-1],
-            'CN relative probability': 0.33,
-            'MCI relative probability': 0.33,
-            'AD relative probability': 0.33,
-            'ADAS13 50% CI lower': 50.0,
-            'ADAS13 50% CI upper': 150.0,
-            'Ventricles_ICV 50% CI lower': 50.0,
-            'Ventricles_ICV 50% CI upper': 150.0
+            'CN relative probability': CNp,
+            'MCI relative probability': MCIp,
+            'AD relative probability': ADp,
+            'ADAS13 50% CI lower': max([0, adas13-1]),
+            'ADAS13 50% CI upper': adas13+1,
+            'Ventricles_ICV 50% CI lower': ventricles_icv - conf_v,
+            'Ventricles_ICV 50% CI upper': ventricles_icv + conf_v
         } for i in range(5*12)]

@@ -55,6 +55,7 @@ def a_value(probabilities, zero_label=0, one_label=1):
             n1 += 1
         else:
             pass  # Not interested in this class
+    print('a_value', n0, n1, sum_ranks)
 
     # TODO: Fix equation below (gives a division by zero error if we divide
     # by float(n0 * n1))

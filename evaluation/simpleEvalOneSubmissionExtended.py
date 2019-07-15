@@ -72,9 +72,8 @@ def parseData(d4Df, forecastDf, diagLabels):
   # print('subDf.keys()', forecastDf['Forecast Date'])
 
   # for each subject in D4 match the closest user forecasts
-  for s in range(nrSubj):
-    currSubjInpData = d4Df.iloc[s]
-    currSubjPred = forecastDf.query(f'RID == {currSubjInpData["RID"]}')
+  for s, (rid, currSubjInpData) in enumerate(d4Df.groupby('RID')):
+    currSubjPred = forecastDf.query(f'RID == {rid}').copy()
     currSubjPred = currSubjPred.reset_index(drop=True)
 
     msg = None
@@ -176,6 +175,7 @@ def evalOneSub(d4Df, forecastDf):
       ventriclesEstim, ventriclesEstimLo, ventriclesEstimUp, trueDiagFilt, trueADASFilt, trueVentsFilt = \
     parseData(d4Df, forecastDf, diagLabels)
   zipTrueLabelAndProbs = list(zipTrueLabelAndProbs)
+  print(len(zipTrueLabelAndProbs), zipTrueLabelAndProbs[0])
 
   ########## compute metrics for the clinical status #############
 

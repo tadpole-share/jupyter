@@ -107,5 +107,8 @@ venv.bak/
 .idea/
 data/
 *.csv
+
+# data
 notebooks/div-tadpole/data
 notebooks/dive-tadpole/tadpole_copy.ipynb
+*.npz

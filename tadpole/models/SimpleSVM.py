@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -32,13 +34,15 @@ class SimpleSVM:
 
     def pre_process(self, train_df):
         train_df = train_df.copy()
-        train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
-        train_df = train_df.rename(columns={"DXCHANGE": "Diagnosis"})
+        if 'Diagnosis' not in train_df.columns:
+            train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
+            train_df = train_df.rename(columns={"DXCHANGE": "Diagnosis"})
 
         # Sort the dataframe based on age for each subject
         train_df = train_df.sort_values(by=['RID', 'Years_bl'])
 
-        train_df["Ventricles_ICV"] = train_df["Ventricles"].values / train_df["ICV_bl"].values
+        if 'Ventricles_ICV' not in train_df.columns:
+            train_df["Ventricles_ICV"] = train_df["Ventricles"].values / train_df["ICV_bl"].values
 
         # Select features
         train_df = train_df[
@@ -74,6 +78,7 @@ class SimpleSVM:
         self.train_model(self.ventricles_model, train_df, X_train, "Future_Ventricles_ICV")
 
     def predict(self, predict_df: pd.DataFrame, datetime):
+        # Do a single prediction for a single patient.
         predict_df = predict_df.sort_values(by=['EXAMDATE'])
         predict_df_preprocessed = self.pre_process(predict_df)
 
@@ -103,7 +108,7 @@ class SimpleSVM:
                                         predict_df_preprocessed['ICV_bl'])
         CNp, MCIp, ADp = predefined_status_prediction(diagnosis)
 
-        return [{
+        return {
             'Diagnosis': diagnosis,
             'ADAS13': adas13,
             'Ventricles_ICV': ventricles_icv,
@@ -116,4 +121,33 @@ class SimpleSVM:
             'ADAS13 50% CI upper': adas13+1,
             'Ventricles_ICV 50% CI lower': ventricles_icv - conf_v,
             'Ventricles_ICV 50% CI upper': ventricles_icv + conf_v
-        } for i in range(5*12)]
+        }
+
+
+    def predict_all_months(self, predict_df: pd.DataFrame, num=5*12):
+        # What is the start date of the predictions? One month after the last
+        # data point?
+        # TODO: fix case when the last row of predict_df contains nans in
+        # places where we don't want them.
+        predict_df = predict_df.sort_values(by=['EXAMDATE'])
+        start = predict_df['EXAMDATE'].iloc[-1]
+        if isinstance(start, str):
+            start = datetime.strptime(start, '%Y-%m-%d')
+        pred_date = start + relativedelta(months=1)
+
+        predictions = []
+
+        for _ in range(num):
+            #print(i, pred_date)
+            # Predict one month (using self.predict)
+            prediction = self.predict(predict_df, pred_date)
+            predictions.append(prediction)
+
+            # Update the patient's data with the prediction
+            predict_df = predict_df.append(pd.DataFrame([prediction]),
+                                           sort=False)
+            predict_df = predict_df.reset_index(drop=True)
+            #print(predict_df)
+            pred_date = pred_date + relativedelta(months=1)
+
+        return pd.DataFrame(predictions)

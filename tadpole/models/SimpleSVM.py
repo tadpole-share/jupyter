@@ -8,6 +8,8 @@ from sklearn.pipeline import Pipeline
 
 from tadpole.utils import ventricles_conf_interv, predefined_status_prediction
 
+from tqdm import tqdm_notebook as tqdm
+
 
 class SimpleSVM:
     def __init__(self):
@@ -125,29 +127,30 @@ class SimpleSVM:
 
 
     def predict_all_months(self, predict_df: pd.DataFrame, num=5*12):
-        # What is the start date of the predictions? One month after the last
-        # data point?
-        # TODO: fix case when the last row of predict_df contains nans in
-        # places where we don't want them.
-        predict_df = predict_df.sort_values(by=['EXAMDATE'])
-        start = predict_df['EXAMDATE'].iloc[-1]
-        if isinstance(start, str):
-            start = datetime.strptime(start, '%Y-%m-%d')
-        pred_date = start + relativedelta(months=1)
-
         predictions = []
 
-        for _ in range(num):
-            #print(i, pred_date)
-            # Predict one month (using self.predict)
-            prediction = self.predict(predict_df, pred_date)
-            predictions.append(prediction)
+        for _rid, patient_df in tqdm(predict_df.groupby('RID')):
+            # What is the start date of the predictions? One month after the
+            # last data point?
+            # TODO: fix case when the last row of predict_df contains nans in
+            # places where we don't want them.
+            patient_df = patient_df.sort_values(by=['EXAMDATE'])
+            start = patient_df['EXAMDATE'].iloc[-1]
+            if isinstance(start, str):
+                start = datetime.strptime(start, '%Y-%m-%d')
+            pred_date = start + relativedelta(months=1)
 
-            # Update the patient's data with the prediction
-            predict_df = predict_df.append(pd.DataFrame([prediction]),
-                                           sort=False)
-            predict_df = predict_df.reset_index(drop=True)
-            #print(predict_df)
-            pred_date = pred_date + relativedelta(months=1)
+            for _ in range(num):
+                #print(i, pred_date)
+                # Predict one month (using self.predict)
+                prediction = self.predict(patient_df, pred_date)
+                predictions.append(prediction)
+
+                # Update the patient's data with the prediction
+                #patient_df = patient_df.append(pd.DataFrame([prediction]),
+                #                            sort=False)
+                #patient_df = patient_df.reset_index(drop=True)
+                #print(patient_df)
+                pred_date = pred_date + relativedelta(months=1)
 
         return pd.DataFrame(predictions)

@@ -75,31 +75,31 @@ def initCommonVoxParams(args):
   import numpy as np
   import colorsys
 
-  nrClust = args.nrClust
+  nrClust = args.get('nrClust')
   assert nrClust  > 1
   nrRows = int(np.sqrt(nrClust) * 0.95)
   nrCols = int(np.ceil(float(nrClust) / nrRows))
   assert (nrRows * nrCols >= nrClust)
 
   params = {}
-  params['nrOuterIter'] = args.nrOuterIt
-  params['nrInnerIter'] = args.nrInnerIt
+  params['nrOuterIter'] = args.get('nrOuterIt')
+  params['nrInnerIter'] = args.get('nrInnerIt')
   params['nrClust'] = nrClust
-  params['runIndex'] = args.runIndex
-  params['nrProcesses'] = args.nrProc
-  params['rangeFactor'] = float(args.rangeFactor)
-  params['cluster'] = args.cluster
+  params['runIndex'] = args.get('runIndex')
+  params['nrProcesses'] = args.get('nrProc')
+  params['rangeFactor'] = float(args.get('rangeFactor'))
+  params['cluster'] = args.get('cluster')
   params['lambdaMRF'] = 1  # args.lambdaMRF # mrf lambda parameter, only used for MRF model
 
   # if args.lambdaMRF is not None:
   #   params['lambdaMRF'] = args.lambdaMRF
   #   params['fixMRF'] = True
 
-  params['initClustering'] = args.initClustering
+  params['initClustering'] = args.get('initClustering')
 
   import aux
-  priorNr = aux.setPrior(params, args.informPrior, mean_gamma_alpha=1,
-    std_gamma_alpha=args.stdGammaAlpha, mu_beta=0, std_beta=args.stdBeta)
+  priorNr = aux.setPrior(params, args.get('informPrior'), mean_gamma_alpha=1,
+    std_gamma_alpha=args.get('stdGammaAlpha'), mu_beta=0, std_beta=args.get('stdBeta'))
 
   plotTrajParams = {}
   plotTrajParams['stagingHistNrBins'] = 20
@@ -108,13 +108,13 @@ def initCommonVoxParams(args):
   # plotTrajParams['freesurfPath'] = freesurfPath
   # plotTrajParams['blenderPath'] = blenderPath
   # plotTrajParams['homeDir'] = homeDir
-  plotTrajParams['reduceSpace'] = args.reduceSpace
-  plotTrajParams['cluster'] = args.cluster
+  plotTrajParams['reduceSpace'] = args.get('reduceSpace')
+  plotTrajParams['cluster'] = args.get('cluster')
   plotTrajParams['TrajSamplesFontSize'] = 12
   plotTrajParams['TrajSamplesAdjBottomHeight'] = 0.175
   plotTrajParams['trajSamplesPlotLegend'] = True
 
-  if args.agg:
+  if args.get('agg'):
     plotTrajParams['agg'] = True
   else:
     plotTrajParams['agg'] = False

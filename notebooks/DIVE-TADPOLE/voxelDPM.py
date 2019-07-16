@@ -120,9 +120,9 @@ class VoxelDPM(DisProgBuilder.DPMInterface):
                                         crossPartCode, np.unique(crossPartCode))  # beta
     initShiftsLong[:, 1] = np.array([s[0] for s in longInitShifts])
 
-    print('longInitShifts', longInitShifts)
-    print(self.params['initShift'])
-    print(initShiftsLong)
+    #print('longInitShifts', longInitShifts)
+    #print(self.params['initShift'])
+    #print(initShiftsLong)
     assert np.isfinite(initShiftsLong).all()
 
     # estimate some initial thetas, which are used as starting point in the numerical optimisatrion algo

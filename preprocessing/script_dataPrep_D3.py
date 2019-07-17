@@ -3,6 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 
+from tqdm.auto import tqdm
+
+
 def preprocess(tadpoleD3File, tadpoleD1D2File, out_dir):
 
     # Input directory
@@ -41,8 +44,7 @@ def preprocess(tadpoleD3File, tadpoleD1D2File, out_dir):
     h = list(Dtadpole)
 
     print('Forcing Numeric Values')
-    for i in range(5, len(h)):
-        print([i]),
+    for i in tqdm(range(5, len(h))):
         if Dtadpole[h[i]].dtype != 'float64':
             Dtadpole[h[i]] = pd.to_numeric(Dtadpole[h[i]], errors='coerce')
 
@@ -81,8 +83,7 @@ def preprocess(tadpoleD3File, tadpoleD1D2File, out_dir):
     h = list(Dtadpole)
 
     print('Forcing Numeric Values')
-    for i in range(5,len(h)):
-        print([i]),
+    for i in tqdm(range(5,len(h))):
         if Dtadpole[h[i]].dtype != 'float64':
             Dtadpole[h[i]]=pd.to_numeric(Dtadpole[h[i]], errors='coerce')
 
@@ -90,8 +91,7 @@ def preprocess(tadpoleD3File, tadpoleD1D2File, out_dir):
 
     Dtadpole_sorted=pd.DataFrame(columns=h)
     print('Sort the dataframe based on age for each subject')
-    for i in range(len(urid)):
-        print([i]),
+    for i in tqdm(range(len(urid))):
         agei=Dtadpole.loc[Dtadpole['RID']==urid[i],'AGE']
         idx_sortedi=np.argsort(agei)
         D1=Dtadpole.loc[idx_sortedi.index[idx_sortedi]]

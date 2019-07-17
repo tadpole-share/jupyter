@@ -247,3 +247,17 @@ def evalOneSub(d4Df, forecastDf):
   ventsCPA = np.abs(ventsCovProb - 0.5)
 
   return mAUC, bca, adasMAE, ventsMAE, adasWES, ventsWES, adasCPA, ventsCPA, adasEstim, trueADASFilt
+
+
+def printResults(mAUC, bca, adasMAE, ventsMAE, adasWES, ventsWES, adasCPA,
+                 ventsCPA):
+
+  print('########### Metrics for clinical status ##################')
+  print('mAUC', mAUC)
+  print('bca', bca)
+  print('\n########### Mean Absolute Error (MAE) ##################')
+  print('adasMAE', adasMAE, 'ventsMAE', ventsMAE)
+  print('\n########### Weighted Error Score (WES) ##################')
+  print('adasWES', adasWES, 'ventsWES', ventsWES)
+  print('\n########### Coverage Probability Accuracy ##################')
+  print('adasCPA', adasCPA, 'ventsCPA', ventsCPA)

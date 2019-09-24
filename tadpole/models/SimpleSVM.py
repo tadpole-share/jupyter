@@ -30,7 +30,7 @@ class SimpleSVM:
 
     def pre_process(self, train_df):
         train_df = train_df.copy()
-        train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
+        train_df = train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
         train_df = train_df.rename(columns={"DXCHANGE": "Diagnosis"})
 
         # Sort the dataframe based on age for each subject
@@ -57,7 +57,8 @@ class SimpleSVM:
         train_df = train_df.drop(train_df.groupby('RID').tail(1).index.values)
         return train_df
 
-    def train(self, train_df: pd.DataFrame):
+    def train(self, train_set_path):
+        train_df = pd.read_csv(train_set_path)
         train_df = self.pre_process(train_df)
         train_df = self.set_futures(train_df)
 
@@ -71,7 +72,8 @@ class SimpleSVM:
         self.train_model(self.adas_model, train_df, X_train, "Future_ADAS13")
         self.train_model(self.ventricles_model, train_df, X_train, "Future_Ventricles_ICV")
 
-    def predict(self, predict_df: pd.DataFrame, datetime):
+    def predict(self, test_set_path, datetime):
+        predict_df = pd.read_csv(test_set_path)
         predict_df = predict_df.sort_values(by=['EXAMDATE'])
         predict_df_preprocessed = self.pre_process(predict_df)
 
@@ -81,9 +83,24 @@ class SimpleSVM:
             predict_df_preprocessed['ADAS13'].dropna().iloc[-1],
             predict_df_preprocessed['Ventricles_ICV'].dropna().iloc[-1]
         ]
-
+        
+        diag_probas = self.diagnosis_model.predict_proba([final_row])[0]
+        
+        print(diag_probas)
+        
         return {
-            'Diagnosis': self.diagnosis_model.predict([final_row])[0],
+            'CN relative probability': diag_probas[0],
+            'MCI relative probability': diag_probas[1],
+            'AD relative probability': diag_probas[2],
+            
             'ADAS13': self.adas_model.predict([final_row])[0],
-            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0]
+            'ADAS13 50% CI lower': 0,
+            'ADAS13 50% CI upper': 0,
+            
+            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0],
+            'Ventricles_ICV 50% CI lower': 0,
+            'Ventricles_ICV 50% CI upper': 0,
         }
+    
+    
+    #['RID','Forecast Month','Forecast Date','CN relative probability','MCI relative probability','AD relative probability','ADAS13','ADAS13 50% CI lower','ADAS13 50% CI upper','Ventricles_ICV','Ventricles_ICV 50% CI lower','Ventricles_ICV 50% CI upper']

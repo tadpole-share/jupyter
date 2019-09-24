@@ -54,7 +54,7 @@ class ECMEB(TadpoleModel):
         train_df.fillna(method='ffill')
         for rid in train_df['RID'].unique():
             idx_rid = train_df.index[train_df["RID"] == rid]
-            train_df.iloc[idx_rid] = train_df.iloc[idx_rid].fillna(method='ffill').fillna(method='bfill')
+            train_df.loc[idx_rid] = train_df.loc[idx_rid].fillna(method='ffill').fillna(method='bfill')
 
         return train_df
 

@@ -28,7 +28,7 @@ class SimpleSVM:
         Y_train_var = Y_train_var[not_nans]
         model.fit(X_train_var, Y_train_var)
 
-    def pre_process(self, train_df):
+    def preprocess(self, train_df):
         train_df = train_df.copy()
         if 'Diagnosis' not in train_df.columns:
             train_df = train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
@@ -61,7 +61,7 @@ class SimpleSVM:
 
     def train(self, train_set_path):
         train_df = pd.read_csv(train_set_path)
-        train_df = self.pre_process(train_df)
+        train_df = self.preprocess(train_df)
         train_df = self.set_futures(train_df)
 
         # Select columns for training
@@ -78,7 +78,7 @@ class SimpleSVM:
         # Do a single prediction for a single patient.
         predict_df = pd.read_csv(test_set_path)
         predict_df = predict_df.sort_values(by=['EXAMDATE'])
-        predict_df_preprocessed = self.pre_process(predict_df)
+        predict_df_preprocessed = self.preprocess(predict_df)
 
         # get the final row (last known value that is not NaN for each variable)
         final_row = [

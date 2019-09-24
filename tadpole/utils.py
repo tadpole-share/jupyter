@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 def test_train_split(df, test_fraction=0.1):
     # remove all rows without 'Ventricles"

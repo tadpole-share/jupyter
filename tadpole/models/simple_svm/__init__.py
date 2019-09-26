@@ -4,6 +4,9 @@ from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class SimpleSVM:
     def __init__(self):
@@ -29,6 +32,7 @@ class SimpleSVM:
         model.fit(X_train_var, Y_train_var)
 
     def preprocess(self, train_df):
+        logger.info("Pre-processing")
         train_df = train_df.copy()
         if 'Diagnosis' not in train_df.columns:
             train_df = train_df.replace({'DXCHANGE': {4: 2, 5: 3, 6: 3, 7: 1, 8: 2, 9: 1}})
@@ -70,15 +74,18 @@ class SimpleSVM:
         # fill NaNs with mean
         X_train = X_train.fillna(X_train.mean())
 
+        logger.info("Training models")
         self.train_model(self.diagnosis_model, train_df, X_train, "Future_Diagnosis")
         self.train_model(self.adas_model, train_df, X_train, "Future_ADAS13")
         self.train_model(self.ventricles_model, train_df, X_train, "Future_Ventricles_ICV")
 
-    def predict(self, test_set_path, datetime):
+    def predict(self, test_series, datetime):
+        logger.info("Predicting")
         # Do a single prediction for a single patient.
-        predict_df = pd.read_csv(test_set_path)
-        predict_df = predict_df.sort_values(by=['EXAMDATE'])
-        predict_df_preprocessed = self.preprocess(predict_df)
+
+        test_df = test_series.to_frame().T
+
+        predict_df_preprocessed = self.preprocess(test_df)
 
         # get the final row (last known value that is not NaN for each variable)
         final_row = [

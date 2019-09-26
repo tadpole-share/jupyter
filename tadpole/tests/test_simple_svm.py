@@ -18,4 +18,3 @@ def test_simple_svm():
     test_set_df = test_set_df.fillna(0)
 
     print(model.predict(test_set_df.iloc[0], datetime.datetime.now()))
-

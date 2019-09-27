@@ -104,7 +104,7 @@ venv.bak/
 
 # pycharm
 .idea/
-data/
+data/*
 notebooks/**/*.csv
 
 
@@ -112,3 +112,5 @@ notebooks/**/*.csv
 notebooks/div-tadpole/data
 notebooks/dive-tadpole/tadpole_copy.ipynb
 *.npz
+
+!.gitkeep

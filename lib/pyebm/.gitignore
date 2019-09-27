@@ -1,3 +1,5 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,6 +16,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+lib/
 lib64/
 parts/
 sdist/
@@ -44,7 +47,6 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-.pytest_cache/
 
 # Translations
 *.mo
@@ -53,7 +55,6 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
 
 # Flask stuff:
 instance/
@@ -102,13 +103,3 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# pycharm
-.idea/
-data/
-notebooks/**/*.csv
-
-
-# data
-notebooks/div-tadpole/data
-notebooks/dive-tadpole/tadpole_copy.ipynb
-*.npz

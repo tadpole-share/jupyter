@@ -13,7 +13,7 @@ RUN activate tadpole
 ADD notebooks /opt/tadpole/notebooks/
 ADD evaluation /opt/tadpole/evaluation/
 ADD Data /opt/tadpole/data
-ADD preprocessing /opt/tadpole/preprocessing
+ADD tadpole/preprocessing /opt/tadpole/preprocessing
 
 RUN python /opt/tadpole/preprocessing/script_dataPrep.py
 RUN python /opt/tadpole/preprocessing/script_dataPrep_D3.py

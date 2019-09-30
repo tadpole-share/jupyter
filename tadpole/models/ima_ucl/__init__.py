@@ -1,7 +1,7 @@
 from tadpole.models.tadpole_model import TadpoleModel
 
 
-class Dive(TadpoleModel):
+class ImaUCL(TadpoleModel):
     def __init__(self):
         pass
 

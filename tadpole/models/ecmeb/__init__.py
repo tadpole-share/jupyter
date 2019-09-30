@@ -143,7 +143,7 @@ class ECMEB(TadpoleModel):
         self.adas_model.fit(self.train_df_adas, self.y_adas)
         self.ventricles_model.fit(self.train_df_ventricles, self.y_ventricles)
 
-    def predict(self, test_series, datetime):
+    def predict(self, test_series, predict_datetime):
         logger.info("Predicting")
         test_df = self.preprocess(test_series.to_frame().T)
         test_df = test_df.drop(['RID'], axis=1)

@@ -79,7 +79,7 @@ class SimpleSVM:
         self.train_model(self.adas_model, train_df, X_train, "Future_ADAS13")
         self.train_model(self.ventricles_model, train_df, X_train, "Future_Ventricles_ICV")
 
-    def predict(self, test_series, datetime):
+    def predict(self, test_series, predict_datetime):
         logger.info("Predicting")
         # Do a single prediction for a single patient.
 

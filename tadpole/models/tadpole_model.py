@@ -7,7 +7,7 @@ class TadpoleModel(ABC):
         pass
 
     @abstractmethod
-    def predict(self, test_set_path, predict_datetime):
+    def predict(self, test_set_path):
         pass
 
     def save(self, path):

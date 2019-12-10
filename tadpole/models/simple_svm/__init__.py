@@ -41,6 +41,10 @@ class SimpleSVM:
         # Sort the dataframe based on age for each subject
         train_df = train_df.sort_values(by=['RID', 'Years_bl'])
 
+        # Ventricles_ICV = Ventricles/ICV_bl. So make sure ICV_bl is not zero to avoid division by zero
+        icv_bl_median = train_df['ICV_bl'].median()
+        train_df.loc[train_df['ICV_bl'] == 0, 'ICV_bl'] = icv_bl_median
+
         if 'Ventricles_ICV' not in train_df.columns:
             train_df["Ventricles_ICV"] = train_df["Ventricles"].values / train_df["ICV_bl"].values
 
@@ -79,33 +83,50 @@ class SimpleSVM:
         self.train_model(self.adas_model, train_df, X_train, "Future_ADAS13")
         self.train_model(self.ventricles_model, train_df, X_train, "Future_Ventricles_ICV")
 
-    def predict(self, test_series, predict_datetime):
+    def predict(self, test_df):
         logger.info("Predicting")
-        # Do a single prediction for a single patient.
 
-        test_df = test_series.to_frame().T
+        # select last row per RID
+        test_df = test_df.sort_values(by=['EXAMDATE'])
+        test_df = test_df.groupby('RID').tail(1)
 
-        predict_df_preprocessed = self.preprocess(test_df)
+        test_df = self.preprocess(test_df)
+        rids = test_df['RID']
+        test_df = test_df.drop(['RID'], axis=1)
 
-        # get the final row (last known value that is not NaN for each variable)
-        final_row = [
-            predict_df_preprocessed['Diagnosis'].dropna().iloc[-1],
-            predict_df_preprocessed['ADAS13'].dropna().iloc[-1],
-            predict_df_preprocessed['Ventricles_ICV'].dropna().iloc[-1]
-        ]
+        # Select same columns as for traning for testing
+        test_df = test_df[["Diagnosis", "ADAS13", "Ventricles_ICV"]]
 
-        diag_probas = self.diagnosis_model.predict_proba([final_row])[0]
+        test_df = test_df.fillna(0)
 
-        return {
-            'CN relative probability': diag_probas[0],
-            'MCI relative probability': diag_probas[1],
-            'AD relative probability': diag_probas[2],
+        diag_probas = self.diagnosis_model.predict_proba(test_df)
+        adas_prediction = self.adas_model.predict(test_df)
 
-            'ADAS13': self.adas_model.predict([final_row])[0],
-            'ADAS13 50% CI lower': 0,
-            'ADAS13 50% CI upper': 0,
+        adas_ci = np.zeros(len(adas_prediction))
 
-            'Ventricles_ICV': self.ventricles_model.predict([final_row])[0],
-            'Ventricles_ICV 50% CI lower': 0,
-            'Ventricles_ICV 50% CI upper': 0,
-        }
+        ventricles_prediction = self.adas_model.predict(test_df)
+        ventricles_ci = np.zeros(len(ventricles_prediction))
+
+        df = pd.DataFrame.from_dict({
+            'rid': rids,
+            'CN relative probability': diag_probas.T[0],
+            'MCI relative probability': diag_probas.T[1],
+            'AD relative probability': diag_probas.T[2],
+
+            'ADAS13': adas_prediction,
+            'ADAS13 50% CI lower': adas_prediction - adas_ci,
+            'ADAS13 50% CI upper': adas_prediction + adas_ci,
+
+            'Ventricles_ICV': ventricles_prediction,
+            'Ventricles_ICV 50% CI lower': ventricles_prediction - ventricles_ci,
+            'Ventricles_ICV 50% CI upper': ventricles_prediction + ventricles_ci,
+        })
+
+        # copy each row for each month
+        df_copy = df.copy()
+        new_df = df
+        for i in range(0, 12*4):
+            df_copy['month'] = i
+            new_df = new_df.append(df_copy)
+
+        return new_df

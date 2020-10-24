@@ -1,0 +1,31 @@
+load_data <- function(path_D1_D2_Dict, path_D1_D2, path_D3, path_simple_submission){
+
+	##Load the Datasets
+	library(readxl)
+
+	TADPOLE_D1_D2_Dict <- read.csv(path_D1_D2_Dict, na.strings=c("NA",-4,"-4.0",""," "))
+	TADPOLE_D1_D2 <- read.csv(path_D1_D2, na.strings=c("NA",-4,"-4.0",""," "))
+	TADPOLE_D3 <- read.csv(path_D3, na.strings=c("NA",-4,"-4.0",""," ","NaN"))
+
+	submissionTemplate <- as.data.frame(read_excel(path_simple_submission))
+
+	submissionTemplate$`Forecast Date` <- as.Date(paste(submissionTemplate$`Forecast Date`,"-01",sep=""))
+	submissionTemplate$`CN relative probability` <- as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`MCI relative probability` <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`AD relative probability` <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$ADAS13 <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`ADAS13 50% CI lower` <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`ADAS13 50% CI upper` <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$Ventricles_ICV <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`Ventricles_ICV 50% CI lower` <-  as.numeric(nrow(submissionTemplate))
+	submissionTemplate$`Ventricles_ICV 50% CI upper` <-  as.numeric(nrow(submissionTemplate))
+
+	TADPOLE_D1_D2$EXAMDATE <- as.Date(TADPOLE_D1_D2$EXAMDATE)
+	TADPOLE_D3$EXAMDATE <- as.Date(TADPOLE_D3$EXAMDATE)
+
+	submissionTemplate <- submissionTemplate[order(submissionTemplate$`Forecast Month`),]
+
+	output = list(submissionTemplate, TADPOLE_D1_D2_Dict, TADPOLE_D1_D2, TADPOLE_D3)
+	
+	return (output)
+}

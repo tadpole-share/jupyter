@@ -1,0 +1,7 @@
+remove_D2_train <- function(TADPOLE_D3, TrainingSet) {
+  D3IDS <- TADPOLE_D3$RID
+  D3TrainingSet <- TrainingSet[!(TrainingSet$RID %in% D3IDS),]
+
+  output = list(D3IDS, D3TrainingSet)
+  return output
+}

@@ -1,0 +1,7 @@
+original_data_D3_train <- function(TrainingSet){
+
+  dataTadpole$AdjustedTrainFrame$Ventricles <- TrainingSet[rownames(dataTadpole$AdjustedTrainFrame),"Ventricles"]/TrainingSet  [rownames(dataTadpole$AdjustedTrainFrame),"ICV"]
+  dataTadpole$AdjustedTrainFrame$ADAS13 <- TrainingSet[rownames(dataTadpole$AdjustedTrainFrame),"ADAS13"]
+
+  return dataTadpole
+}

@@ -1,0 +1,12 @@
+train_test_split <- function(TADPOLE_D1_D2, TADPOLE_D3) {
+	TrainingSet <- subset(TADPOLE_D1_D2,D1==1)
+	D2TesingSet <- subset(TADPOLE_D1_D2,D2==1)
+
+	rownames(TrainingSet) <- paste(TrainingSet$RID,TrainingSet$VISCODE,sep="_")
+	rownames(D2TesingSet) <- paste(D2TesingSet$RID,D2TesingSet$VISCODE,sep="_")
+	rownames(TADPOLE_D3) <- paste(TADPOLE_D3$RID,TADPOLE_D3$VISCODE,sep="_")
+
+	output = list(TrainingSet, D2TesingSet, TADPOLE_D3)
+
+	return (output)
+}

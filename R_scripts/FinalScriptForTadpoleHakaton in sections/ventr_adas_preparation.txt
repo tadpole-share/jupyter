@@ -1,0 +1,16 @@
+ventr_adas_preparation <- function(dataTadpole) {
+  ## Transforming the test data set
+
+  dataTadpole$testingFrame$Ventricles <- dataTadpole$Test_Imputed[rownames(dataTadpole$testingFrame),"Ventricles"]/dataTadpole  $Test_Imputed[rownames(dataTadpole$testingFrame),"ICV"]
+  dataTadpole$testingFrame$ADAS13 <- dataTadpole$Test_Imputed[rownames(dataTadpole$testingFrame),"ADAS13"]
+
+  ## THe last time point required for forecasting ADAS13 and Ventricles
+  ltptf <- dataTadpole$testingFrame
+  ltptf <- ltptf[order(ltptf$EXAMDATE),]
+  ltptf <- ltptf[order(as.numeric(ltptf$RID)),]
+  rids <- ltptf$RID
+  ltptf <- ltptf[c(rids[1:(length(rids)-1)] != rids[-1],TRUE),]
+  rownames(ltptf) <- ltptf$RID
+
+  return ltptf
+}

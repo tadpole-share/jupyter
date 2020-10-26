@@ -1,0 +1,13 @@
+conditioning_D2 <- function(TrainingSet, D2TesingSet){
+	### Data conditioning and preparation for D2
+
+	TrainingSet <- TrainingSet[order(TrainingSet$EXAMDATE),]
+	TrainingSet <- TrainingSet[order(as.numeric(TrainingSet$RID)),]
+
+	D2TesingSet <- D2TesingSet[order(D2TesingSet$EXAMDATE),]
+	D2TesingSet <- D2TesingSet[order(as.numeric(D2TesingSet$RID)),]
+
+	output = list(TrainingSet, D2TesingSet)
+	
+	return (output)
+}

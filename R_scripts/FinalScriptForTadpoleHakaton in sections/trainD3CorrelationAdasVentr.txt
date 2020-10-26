@@ -1,0 +1,7 @@
+trainD3CorrelationAdasVentr <- function(D3TrainingSet) {
+  dataTadpoleD3$AdjustedTrainFrame$Ventricles <- D3TrainingSet[rownames(dataTadpoleD3$AdjustedTrainFrame),"Ventricles"]/D3TrainingSet[rownames(dataTadpoleD3$AdjustedTrainFrame),"ICV"]
+  dataTadpoleD3$AdjustedTrainFrame$ADAS13 <- D3TrainingSet[rownames(dataTadpoleD3$AdjustedTrainFrame),"ADAS13"]
+
+  return(dataTadpoleD3)
+
+}

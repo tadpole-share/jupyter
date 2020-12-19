@@ -10,8 +10,9 @@
 forecastCognitiveStatus <- function(Models,TestDataFrame){
   
   #args
+  TestDataFrame$EXAMDATE <- as.Date(TestDataFrame$EXAMDATE);
   Models=CognitiveClassModels
-  TestDataFrame = testingFrame
+#  TestDataFrame = testingFrame
   ###
   predictors <- Models$predictors
   months <- as.numeric(names(table(TestDataFrame$M)))
@@ -28,7 +29,6 @@ forecastCognitiveStatus <- function(Models,TestDataFrame){
     print(months)
   }
   cpredictors <- predictors
-  
   TestDataFrame <- TestDataFrame[order(TestDataFrame$EXAMDATE),]
   TestDataFrame <- TestDataFrame[order(as.numeric(TestDataFrame$RID)),]
   

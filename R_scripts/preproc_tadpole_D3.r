@@ -1,3 +1,5 @@
+TADPOLE_D3 <- read.csv("data/TADPOLE_D3.csv", na.strings=c("NA",-4,"-4.0",""," ","NaN"))
+
 train_df <- read.csv("data/train_df.csv", na.strings=c("NA",-4,"-4.0",""," "))
 TADPOLE_D1_D2_Dict <- read.csv("data/TADPOLE_D1_D2_Dict.csv", na.strings=c("NA",-4,"-4.0",""," "))
 submissionTemplate <- as.data.frame(read_excel("data/TADPOLE_Simple_Submission_TeamName.xlsx"))

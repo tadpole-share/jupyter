@@ -152,7 +152,7 @@ rownames(ltptf) <- ltptf$RID
 plot(ltptf$Ventricles,ltptf$Ventricles_bl)
 plot(ltptf$ICV,ltptf$ICV_bl)
 
-## Build the 35 predictive models of congnitive status
+## Build the 25 predictive models of congnitive status
 D3CognitiveClassModels <- TrainTadpoleClassModels(dataTadpoleD3$AdjustedTrainFrame,
                                                 predictors=c("AGE","PTGENDER",colnames(dataTadpoleD3$AdjustedTrainFrame)[-c(1:22)]),
                                                 numberOfRandomSamples=25,

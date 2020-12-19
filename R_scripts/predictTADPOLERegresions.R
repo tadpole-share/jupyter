@@ -16,10 +16,11 @@ forecastRegressions <- function(Models,
   #TestDataFrame = testDataset
   #futuredate=afdate
   ##
-  
-  deltaTime <- as.numeric(futuredate - as.Date(TestDataFrame$EXAMDATE))/365.25
+#  TestDataFrame$EXAMDATE <- as.Date(TestDataFrame$EXAMDATE)
+  deltaTime <- as.numeric(futuredate - TestDataFrame$EXAMDATE)/365.25
   
   hist(deltaTime)
+#  print(deltaTime)
   
   if (any(deltaTime > 10.0)){
     deltaTime[deltaTime > 10.0] <- 10.0
@@ -28,7 +29,7 @@ forecastRegressions <- function(Models,
   TestDataFrame$TimeToLastVisit <- deltaTime
   TestDataFrame$SQRTimeToLastVisit <- deltaTime*deltaTime
   TestDataFrame$LOGTimeToLastVisit <- log(1+deltaTime)
-  TestDataFrame$CUBTimeToLastVisit <- deltaTime*deltaTime*deltaTime*deltaTime
+  TestDataFrame$CUBTimeToLastVisit <- deltaTime*deltaTime*deltaTime
   TestDataFrame$SQRTTimeToLastVisit <- sqrt(deltaTime)
   TestDataFrame$MeanCVLOGTimeToLastVisit <- log(1+deltaTime)*TestDataFrame$COMeanThickness
   TestDataFrame$MMSELOGTimeToLastVisit <- log(1+deltaTime)*TestDataFrame$MMSE

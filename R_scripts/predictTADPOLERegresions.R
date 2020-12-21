@@ -16,7 +16,7 @@ forecastRegressions <- function(Models,
   #TestDataFrame = testDataset
   #futuredate=afdate
   ##
-#  TestDataFrame$EXAMDATE <- as.Date(TestDataFrame$EXAMDATE)
+  TestDataFrame$EXAMDATE <- as.Date(TestDataFrame$EXAMDATE)
   deltaTime <- as.numeric(futuredate - TestDataFrame$EXAMDATE)/365.25
   
   hist(deltaTime)

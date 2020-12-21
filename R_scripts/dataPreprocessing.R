@@ -151,9 +151,7 @@ dataTADPOLEPreprocesing <- function(train_frame,
   train_frame_Transformed$COMeanThickness <- train_frame_Transformed$StdThickness/train_frame_Transformed$MeanThickness
   
 ## Testing
- 
-  cat("I'm Here Line 155\n")
- 
+  
   test_Frame_Transformed[,colnumeric] <- sapply(test_Frame_Transformed[,colnumeric],as.numeric)
   
   
@@ -216,8 +214,8 @@ dataTADPOLEPreprocesing <- function(train_frame,
   
   checkmissing <- colImputeThreshold*nrow(train_frame_Transformed)
   
-  print(table(train_frame_Transformed$VISCODE))
-  print(sum(is.na(train_frame_Transformed$DX)))
+  table(train_frame_Transformed$VISCODE)
+  sum(is.na(train_frame_Transformed$DX))
   
   shortvisits <- subset(train_frame_Transformed,M <= MinVisit)
   
@@ -251,7 +249,6 @@ dataTADPOLEPreprocesing <- function(train_frame,
   TadpoleTrain_Imputed <- train_frame_Transformed_red
   allAdustedZrank <- TadpoleTrain_Imputed
   TadpoleTrain_Imputed <- cbind(train_frame_Transformed_red[,colnotincluded],nearestNeighborImpute(TadpoleOnlyFeatures,catgoricCol=c("RID","PTGENDER")))
-  cat("After Train Impute line 254\n")
   checkVV <- TadpoleTrain_Imputed$Ventricles < 0.99*TadpoleTrain_Imputed$Ventricles_bl
   checkVV <- checkVV | TadpoleTrain_Imputed$Ventricles > 1.5*TadpoleTrain_Imputed$Ventricles_bl
   checkVV <- checkVV & (is.na(TadpoleOnlyFeatures$Ventricles) & !is.na(TadpoleOnlyFeatures$Ventricles_bl))
@@ -269,7 +266,7 @@ dataTADPOLEPreprocesing <- function(train_frame,
   fnames <- str_replace_all(fnames,"//.","_")
   colnames(TadpoleTrain_Imputed) <- fnames
 
-  print(table(TadpoleTrain_Imputed$PTGENDER))
+  table(TadpoleTrain_Imputed$PTGENDER)
 #  TadpoleTrain_Imputed$PTGENDER <- 1*(TadpoleTrain_Imputed$PTGENDER=="Male")
 #  table(TadpoleTrain_Imputed$PTGENDER)
 
@@ -280,13 +277,10 @@ dataTADPOLEPreprocesing <- function(train_frame,
   predictors <- colnames(cognitiveNormal)[-notQuantitative]
   predictors <- cbind(predictors,predictors)
 
-  cat("I'm Here line 282\n")
   allAdusted <- featureAdjustment(predictors, baseModel="1+AGE+nICV",data=TadpoleTrain_Imputed,referenceframe=cognitiveNormal,strata="PTGENDER", type = "LM", pvalue = 0.001)
-  cat("After Adjustment line 282\n")
   adjustedContol <- subset(allAdusted,DX=="NL" & VISCODE=="bl")
 
 
-  cat("I'm Inverse\n")
   trainAdustedZrank <- rankInverseNormalDataFrame(predictors,
                                                 allAdusted,
                                                 adjustedContol,
@@ -392,6 +386,7 @@ dataTADPOLEPreprocesing <- function(train_frame,
                      Train_Imputed = TadpoleTrain_Imputed,
                      Test_Imputed = Tadpole_Imputed
                      )
+  
   
   return (DataFrames)
 }

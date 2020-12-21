@@ -11,7 +11,7 @@ forecastCognitiveStatus <- function(Models,TestDataFrame){
   
   #args
   TestDataFrame$EXAMDATE <- as.Date(TestDataFrame$EXAMDATE);
-  Models=CognitiveClassModels
+#  Models=CognitiveClassModels
 #  TestDataFrame = testingFrame
   ###
   predictors <- Models$predictors

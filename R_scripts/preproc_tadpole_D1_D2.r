@@ -3,7 +3,7 @@
 #TRAIN SETS of spliting is in the preprocess func
 suppressMessages(library("FRESA.CAD"))
   
-  TADPOLE_D1_D2 <- read.csv("data/train_df.csv", na.strings=c("NA",-4,"-4.0",""," "))
+  TADPOLE_D1_D2 <- read.csv("data/TADPOLE_D1_D2.csv", na.strings=c("NA",-4,"-4.0",""," "))
   source('R_scripts/dataPreprocessing.R')
   TADPOLE_D1_D2_Dict <- read.csv("data/TADPOLE_D1_D2_Dict.csv", na.strings=c("NA",-4,"-4.0",""," "))
   

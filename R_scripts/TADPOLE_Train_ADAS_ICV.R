@@ -18,10 +18,13 @@ TrainTadpoleRegresionModels <- function(AdjustedFrame,
                                         MLMethod=BSWiMS.model,
                                          ...){
 
+  print(c(nrow(AdjustedFrame),ncol(AdjustedFrame)))
+
   AdjustedFrame$RID <- as.character(AdjustedFrame$RID)
   AdjustedFrame$EXAMDATE <- as.Date(AdjustedFrame$EXAMDATE);
 
   suppressMessages(library("FRESA.CAD"))
+  AdjustedFrame$M <- as.numeric(AdjustedFrame$M)
   months <- as.numeric(names(table(AdjustedFrame$M)))
   print(months)
   cpredictors <- predictors
@@ -36,20 +39,21 @@ TrainTadpoleRegresionModels <- function(AdjustedFrame,
   print(nrow(lastTimepointSet))
   print(table(lastTimepointSet$DX))
 
-  Orderbytimepoint <- vector()
+  Orderbytimepoint <- NULL
   m <- 0
   print("FOR 1")
   for (m in months){
     TimePointsSubset <- subset(AdjustedFrame,M == m)
+    print(nrow(TimePointsSubset))
     TimePointsSubset$TimeToLastVisit <- as.numeric(lastTimepointSet[TimePointsSubset$RID,"EXAMDATE"] - TimePointsSubset$EXAMDATE)/365.25
     TimePointsSubset$DeltaVentricle <- as.numeric(lastTimepointSet[TimePointsSubset$RID,"Ventricles"] - TimePointsSubset$Ventricles)
     TimePointsSubset$DeltaAdas13 <- as.numeric(lastTimepointSet[TimePointsSubset$RID,"ADAS13"] - TimePointsSubset$ADAS13)
     TimePointsSubset <- TimePointsSubset[complete.cases(TimePointsSubset[,predictors]),]
     Orderbytimepoint <- rbind(Orderbytimepoint,TimePointsSubset)
   }
-  hist(Orderbytimepoint$TimeToLastVisit)
-  hist(Orderbytimepoint$DeltaVentricle)
-  hist(Orderbytimepoint$DeltaAdas13)
+#  hist(Orderbytimepoint$TimeToLastVisit)
+#  hist(Orderbytimepoint$DeltaVentricle)
+#  hist(Orderbytimepoint$DeltaAdas13)
   
   print(sum(Orderbytimepoint$TimeToLastVisit < 0))
   

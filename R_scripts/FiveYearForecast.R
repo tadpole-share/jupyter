@@ -13,7 +13,6 @@
 FiveYearForeCast <- function(Classpredictions=NULL,testDataset=NULL,ADAS_Ventricle_Models=NULL,logt=FALSE,Subject_datestoPredict=NULL)
 {
   predictedFrame <-NULL
-  classPredictions <- NULL
   RID <- as.character(Subject_datestoPredict$RID)
   sdMIC <- sd(Classpredictions$MCITOADTimeprediction)
   sdNC <- sd(Classpredictions$NCToMCITimeprediction)

@@ -41,7 +41,7 @@ D3TrainingSet <- TrainingSet[!(TrainingSet$RID %in% D3IDS),]
                                            TADPOLE_D1_D2_Dict,
                                            MinVisit=18,
                                            colImputeThreshold=0.15,
-                                           rowImputeThreshold=0.10,
+                                           rowImputeThreshold=0.25,
                                            includeID=FALSE)
   save(dataTadpoleD3,file="data/D3DataFrames.RDATA")
 

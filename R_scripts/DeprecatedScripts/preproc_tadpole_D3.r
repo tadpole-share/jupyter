@@ -1,4 +1,4 @@
-TADPOLE_D1_D2 <- read.csv("data/TADPOLE_D1_D2.csv", na.strings=c("NA",-4,"-4.0",""," "))
+TADPOLE_D1_D2 <- read.csv("data/TADPOLE_D1_D2.csv", na.strings=c("NA",-4,"-4.0",""," ","NaN"))
 TADPOLE_D3 <- read.csv("data/TADPOLE_D3.csv", na.strings=c("NA",-4,"-4.0",""," ","NaN"))
 TADPOLE_D1_D2_Dict <- read.csv("data/TADPOLE_D1_D2_Dict.csv", na.strings=c("NA",-4,"-4.0",""," "))
 

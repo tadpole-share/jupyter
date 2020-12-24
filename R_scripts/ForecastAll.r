@@ -73,7 +73,7 @@ ForecastAll <- function(CognitiveModelFileName,
 								   Subject_datestoPredict=submissionTemplate)
 
 
-	ForeCastingFileName <- "data/_ForecastFRESACAD.csv"
+	ForeCastingFileName <- c("data/_ForecastFRESACAD.csv")
 	write.csv(forecast,file=ForeCastingFileName)
 
 	return(ForeCastingFileName)

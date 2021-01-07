@@ -14,7 +14,7 @@ dataTADPOLEPreprocesing <- function(train_frame,
                                     dictionary,
                                     MinVisit=36,
                                     colImputeThreshold=0.25,
-                                    rowImputeThreshold=0.25,
+                                    rowImputeThreshold=0.10,
                                     includeID=TRUE){
   library("FRESA.CAD")
   
@@ -386,6 +386,7 @@ dataTADPOLEPreprocesing <- function(train_frame,
                      Train_Imputed = TadpoleTrain_Imputed,
                      Test_Imputed = Tadpole_Imputed
                      )
+  
   
   return (DataFrames)
 }

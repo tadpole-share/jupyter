@@ -5,10 +5,21 @@ suppressMessages(library(readxl))
 
 AdjustedTrainFrame <- read.csv("data/dataTadpole$AdjustedTrainFrame.csv")
 testingFrame <- read.csv("data/dataTadpole$testingFrame.csv")
+Train_Imputed <- read.csv("data/dataTadpole$Train_Imputed.csv")
 Test_Imputed <- read.csv("data/dataTadpole$Test_Imputed.csv")
 submissionTemplate <- as.data.frame(read_excel("data/TADPOLE_Simple_Submission_TeamName.xlsx"))
 train_df <- read.csv("data/train_df.csv", na.strings=c("NA",-4,"-4.0",""," "))
 
+rownames(AdjustedTrainFrame) <- AdjustedTrainFrame$X
+rownames(testingFrame) <- testingFrame$X
+rownames(Test_Imputed) <- Test_Imputed$X
+rownames(Train_Imputed) <- Train_Imputed$X
+rownames(train_df) <- train_df$X
+
+AdjustedTrainFrame$EXAMDATE <- as.Date(AdjustedTrainFrame$EXAMDATE)
+testingFrame$EXAMDATE <- as.Date(testingFrame$EXAMDATE)
+Test_Imputed$EXAMDATE <- as.Date(Test_Imputed$EXAMDATE)
+train_df$EXAMDATE <- as.Date(train_df$EXAMDATE)
 
 submissionTemplate$`Forecast Date` <- as.Date(paste(submissionTemplate$`Forecast Date`,"-01",sep=""))
 submissionTemplate$`CN relative probability` <- as.numeric(nrow(submissionTemplate))
@@ -33,7 +44,7 @@ TrainingSet <- TrainingSet[order(as.numeric(TrainingSet$RID)),]
 
 
 source('R_scripts/TADPOLE_Train.R')
-## Train 25 Models for the D2 subjects
+#Train 25 Models for the D2 subjects
 CognitiveClassModels <- TrainTadpoleClassModels(AdjustedTrainFrame,
                                                 predictors=c("AGE","PTGENDER",colnames(AdjustedTrainFrame)[-c(1:22)]),
                                                 numberOfRandomSamples=25,
@@ -41,6 +52,7 @@ CognitiveClassModels <- TrainTadpoleClassModels(AdjustedTrainFrame,
                                                 MLMethod=BSWiMS.model,
                                                 NumberofRepeats = 1)
 save(CognitiveClassModels,file="data/_CognitiveClassModels_25.RDATA.RDATA")
+load(file="data/_CognitiveClassModels_25.RDATA.RDATA")
 
 # Predict the models on D2 subjects
 source('R_scripts/predictCognitiveStatus.R')
@@ -48,7 +60,7 @@ predictADNI <- forecastCognitiveStatus(CognitiveClassModels,testingFrame)
 
 ########################Regresion models
 ### Training the ADAS13 and Ventricles
-dim(AdjustedTrainFrame)
+#dim(AdjustedTrainFrame)
 ### Get the original Data D3 Train
 AdjustedTrainFrame$Ventricles <- TrainingSet[rownames(AdjustedTrainFrame),"Ventricles"]/TrainingSet[rownames(AdjustedTrainFrame),"ICV"]
 AdjustedTrainFrame$ADAS13 <- TrainingSet[rownames(AdjustedTrainFrame),"ADAS13"]
@@ -56,14 +68,15 @@ AdjustedTrainFrame$ADAS13 <- TrainingSet[rownames(AdjustedTrainFrame),"ADAS13"]
 
   ## Train 50 models based on D1 data
 
-  source('R_scripts/TADPOLE_Train_ADAS_ICV.R')
+source('R_scripts/TADPOLE_Train_ADAS_ICV.R')
   CognitiveRegresModels <- TrainTadpoleRegresionModels(AdjustedTrainFrame,
                                                        predictors=c("AGE","PTGENDER",colnames(AdjustedTrainFrame)[-c(1:22)]),
                                                        numberOfRandomSamples=50,
                                                        MLMethod=BSWiMS.model,
                                                        NumberofRepeats = 1)
   
-  save(CognitiveRegresModels,file="data/_CognitiveRegresModels_50_Nolog.RDATA")
+save(CognitiveRegresModels,file="data/_CognitiveRegresModels_50_Nolog.RDATA")
+load(file="data/_CognitiveRegresModels_50_Nolog.RDATA")
 
 source('R_scripts/predictTADPOLERegresions.R')
 
@@ -84,11 +97,11 @@ rownames(ltptf) <- ltptf$RID
 
 print("forecast_d2")
   ### Forecasting 5 years. The forcast transfomrs back to the actual space
-  source('R_scripts/FiveYearForecast.R')
-  forecast <- FiveYearForeCast(predictADNI,
+source('R_scripts/FiveYearForecast.R')
+forecast <- FiveYearForeCast(predictADNI,
                                testDataset=ltptf,
                                ADAS_Ventricle_Models=CognitiveRegresModels,
                                Subject_datestoPredict=submissionTemplate)
   
-  write.csv(forecast,file="data/_ForecastD2_BORREGOS_TEC.csv")
+write.csv(forecast,file="data/_ForecastD2_BORREGOS_TEC.csv")
 

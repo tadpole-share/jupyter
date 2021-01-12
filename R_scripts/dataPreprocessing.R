@@ -33,8 +33,6 @@ dataTADPOLEPreprocesing <- function(train_frame,
   test_Frame$AGE <- as.numeric(test_Frame$AGE)
   test_Frame$PTGENDER <- 1*(test_Frame$PTGENDER=="Male")
   
-  
-  
   combinedBasicCol <- c(SetIDSColumns,DatesColumns,Diagnosis,BasicColumns)
   notQuantitative <- c(1:length(combinedBasicCol))
   
@@ -52,14 +50,21 @@ dataTADPOLEPreprocesing <- function(train_frame,
   
   VolumeRight <- volumeCOlumns[volumeCOlumns %in% Rightlocations]
   VolumeLeft <- volumeCOlumns[volumeCOlumns %in% Leftlocations]
+  VolumeRight <- as.character(VolumeRight)
+  VolumeLeft <- as.character(VolumeRight)
   
   AreaRight <- AreaCOlumns[AreaCOlumns %in% Rightlocations]
   AreaLeft <- AreaCOlumns[AreaCOlumns %in% Leftlocations]
+  AreaRight <- as.character(AreaRight)
+  AreaLeft <- as.character(AreaLeft)
   
   ThicknessRight <- ThicknessCOlumns[ThicknessCOlumns %in% Rightlocations]
   ThicknessLeft <- ThicknessCOlumns[ThicknessCOlumns %in% Leftlocations]
+  ThicknessRight <- as.character(ThicknessRight)
+  ThicknessLeft <- as.character(ThicknessLeft)
   
   otherVolumes <- volumeCOlumns[!(volumeCOlumns %in% c(Rightlocations,Leftlocations))]
+  otherVolumes <- as.character(otherVolumes)
   
   print(dictionary[dictionary$FLDNAME %in% ThicknessRight[1:5],"TEXT"])
   print(dictionary[dictionary$FLDNAME %in% ThicknessLeft[1:5],"TEXT"])
